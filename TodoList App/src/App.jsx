@@ -1,20 +1,44 @@
 import { useState } from "react";
+import { useRef } from "react";
+import { useEffect } from "react";
 
 const TodoList = () => {
   const [input, setInput] = useState("");
   const [todos, setTodos] = useState([]);
+  const [element, setElement] = useState(true);
+  const [inputRef, setInputRef] = useState("");
+  const deleteRef = useRef(null);
+  const editRef = useRef(null);
+  const replaceRef = useRef(null);
 
-  const editHandle = (index) => {};
-  const closeHandle = (index) => {};
-  const submitHandle = () => {
-    if (setInput === "") {
-      
+
+
+  const editHandle = () => {
+    if (editRef.current && replaceRef.current) {
+      editRef.current.replaceWith(replaceRef.current);
     }
-    else {
+  };
+
+  useEffect(() => {
+    if (!element){
+      editHandle()
+    }
+  }, [element])
+
+  const closeHandle = () => {
+    if (deleteRef.current) {
+      deleteRef.current.remove()
+    }
+  }
+  const submitHandle = () => {
+    if (input === "") {
+      alert("Fill the box");
+      return;
+    } else {
       setTodos((enList) => [...enList, input]);
       setInput("");
-      }
     }
+  };
   return (
     <>
       <div className="container m-10 w-full flex justify-around">
@@ -34,8 +58,8 @@ const TodoList = () => {
       </div>
       <ul className="container mx-auto p-4 justify-between w-full">
         {todos.map((todo, index) => (
-          <li key={index} className="p-2 border-b-2 flex justify-between">
-            <p className="px-4 item-center">{todo}</p>
+          <li key={index} className="p-2 border-b-2 flex justify-between" ref={deleteRef}>
+            <p className="px-4 item-center" >{element ? (<p ref={editRef}>{todo}</p>): (<p ref={replaceRef}>{inputRef}</p>)}</p>
             <div className="flex w-6/12">
               <button
                 className="p-2 border-l-2 rounded-3xl bg-red-200 text-black w-6/12 hover:bg-blue-800 hover:text-white"
@@ -45,7 +69,7 @@ const TodoList = () => {
               </button>
               <button
                 className="p-2 border-l-2 rounded-3xl bg-red-200 text-black w-6/12 hover:bg-blue-800 hover:text-white"
-                onClick={editHandle}
+                onClick={() => setElement(false)}
               >
                 Edit
               </button>
